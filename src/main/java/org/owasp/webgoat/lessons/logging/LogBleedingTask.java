@@ -10,11 +10,10 @@ import static org.owasp.webgoat.container.assignments.AttackResultBuilder.succes
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.UUID;
-import org.apache.logging.log4j.util.Strings;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.owasp.webgoat.container.assignments.AssignmentEndpoint;
 import org.owasp.webgoat.container.assignments.AttackResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -23,7 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class LogBleedingTask implements AssignmentEndpoint {
 
-  private static final Logger log = LoggerFactory.getLogger(LogBleedingTask.class);
+  // Intentionally using Log4j directly (vulnerable to CVE-2021-44228 Log4Shell)
+  private static final Logger log = LogManager.getLogger(LogBleedingTask.class);
   private final String password;
 
   public LogBleedingTask() {
@@ -36,7 +36,8 @@ public class LogBleedingTask implements AssignmentEndpoint {
   @PostMapping("/LogSpoofing/log-bleeding")
   @ResponseBody
   public AttackResult completed(@RequestParam String username, @RequestParam String password) {
-    if (Strings.isEmpty(username) || Strings.isEmpty(password)) {
+    log.info("Login attempt for user: {}", username);
+    if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
       return failed(this).output("Please provide username (Admin) and password").build();
     }
 

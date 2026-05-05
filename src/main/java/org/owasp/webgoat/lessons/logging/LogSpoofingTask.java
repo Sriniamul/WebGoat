@@ -7,7 +7,8 @@ package org.owasp.webgoat.lessons.logging;
 import static org.owasp.webgoat.container.assignments.AttackResultBuilder.failed;
 import static org.owasp.webgoat.container.assignments.AttackResultBuilder.success;
 
-import org.apache.logging.log4j.util.Strings;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.owasp.webgoat.container.assignments.AssignmentEndpoint;
 import org.owasp.webgoat.container.assignments.AttackResult;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,10 +19,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class LogSpoofingTask implements AssignmentEndpoint {
 
+  // Intentionally using Log4j directly (vulnerable to CVE-2021-44228 Log4Shell)
+  private static final Logger log = LogManager.getLogger(LogSpoofingTask.class);
+
   @PostMapping("/LogSpoofing/log-spoofing")
   @ResponseBody
   public AttackResult completed(@RequestParam String username, @RequestParam String password) {
-    if (Strings.isEmpty(username)) {
+    log.info("Login attempt for user: {}", username);
+    if (username == null || username.isEmpty()) {
       return failed(this).output(username).build();
     }
     username = username.replace("\n", "<br/>");

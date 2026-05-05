@@ -8,6 +8,8 @@ import static org.owasp.webgoat.container.assignments.AttackResultBuilder.failed
 import static org.owasp.webgoat.container.assignments.AttackResultBuilder.success;
 
 import com.thoughtworks.xstream.XStream;
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.FixedValue;
 import org.apache.commons.lang3.StringUtils;
 import org.owasp.webgoat.container.assignments.AssignmentEndpoint;
 import org.owasp.webgoat.container.assignments.AssignmentHints;
@@ -56,5 +58,17 @@ public class VulnerableComponentsLesson implements AssignmentEndpoint {
       return success(this).feedback("vulnerable-components.success").output(e.getMessage()).build();
     }
     return failed(this).feedback("vulnerable-components.fromXML").feedbackArgs(contact).build();
+  }
+
+  /**
+   * Creates a cglib dynamic proxy for Contact interface. Demonstrates how cglib (a common gadget
+   * chain library) can be used to create proxies that intercept method calls - this makes the
+   * cglib-nodep dependency reachable for vulnerability scanning.
+   */
+  private Contact createProxiedContact(Contact original) {
+    Enhancer enhancer = new Enhancer();
+    enhancer.setSuperclass(ContactImpl.class);
+    enhancer.setCallback((FixedValue) () -> original.getFirstName());
+    return (Contact) enhancer.create();
   }
 }

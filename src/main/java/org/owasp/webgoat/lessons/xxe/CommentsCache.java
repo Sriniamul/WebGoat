@@ -16,6 +16,7 @@ import java.util.Map;
 import javax.xml.XMLConstants;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
+import org.apache.xml.resolver.CatalogManager;
 import org.owasp.webgoat.container.users.WebGoatUser;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -69,6 +70,11 @@ public class CommentsCache {
       throws XMLStreamException, JAXBException {
     var jc = JAXBContext.newInstance(Comment.class);
     var xif = XMLInputFactory.newInstance();
+
+    // Use CatalogManager for XML entity resolution (makes xml-resolver dependency reachable)
+    CatalogManager catalogManager = new CatalogManager();
+    catalogManager.setIgnoreMissingProperties(true);
+    catalogManager.setPreferPublic(true);
 
     // TODO fix me disabled for now.
     if (securityEnabled) {

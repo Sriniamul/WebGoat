@@ -631,7 +631,7 @@
               <rules>
                 <bannedDependencies>
                   <excludes combine.children="append">
-                    <exclude>org.apache.logging.log4j:log4j-core</exclude>
+                    <!-- Intentionally allowing log4j-core for Log4Shell lesson demonstration -->
                   </excludes>
                 </bannedDependencies>
               </rules>
